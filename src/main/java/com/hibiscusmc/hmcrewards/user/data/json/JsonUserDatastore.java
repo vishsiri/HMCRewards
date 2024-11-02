@@ -64,6 +64,23 @@ public final class JsonUserDatastore implements UserDatastore {
     }
 
     @Override
+    public @Nullable User findByUsernameIgnoreCase(@NotNull String username) {
+        if (!Files.exists(folder)) {
+            return null;
+        }
+        try (final var stream = Files.list(folder)) {
+            return stream
+                    .filter(path -> path.toString().endsWith(".json"))
+                    .map(this::deserializeFromPath)
+                    .filter(user -> user.name().equalsIgnoreCase(username))
+                    .findFirst()
+                    .orElse(null);
+        } catch (final IOException e) {
+            throw new IllegalStateException("(findByUsernameIgnoreCase) Failed to read user data for " + username, e);
+        }
+    }
+
+    @Override
     public void save(final @NotNull User user) {
         if (!Files.exists(folder)) {
             try {

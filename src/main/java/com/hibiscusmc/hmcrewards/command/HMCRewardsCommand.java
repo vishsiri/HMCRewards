@@ -81,7 +81,7 @@ public final class HMCRewardsCommand implements CommandClass {
             if (target == null) {
                 // queue offline
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    final User user = userDatastore.findByUsername(targetName);
+                    final User user = userDatastore.findByUsernameIgnoreCase(targetName);
                     if (user == null) {
                         translationManager.send(sender, "user.not_found", Placeholder.component("arg", Component.text(targetName)));
                         return;

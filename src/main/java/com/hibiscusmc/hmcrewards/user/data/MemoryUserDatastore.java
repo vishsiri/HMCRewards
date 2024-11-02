@@ -22,6 +22,15 @@ final class MemoryUserDatastore implements UserDatastore {
     }
 
     @Override
+    public @Nullable User findByUsernameIgnoreCase(@NotNull String username) {
+        return data.values().stream()
+                .filter(user -> user.name().equalsIgnoreCase(username))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    @Override
     public void save(final @NotNull User user) {
         data.put(user.uuid(), user);
     }

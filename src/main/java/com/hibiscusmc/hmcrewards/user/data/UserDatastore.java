@@ -11,5 +11,7 @@ public interface UserDatastore {
 
     @Nullable User findByUsername(final @NotNull String username);
 
+    @Nullable User findByUsernameIgnoreCase(@NotNull String username);
+
     void save(final @NotNull User user);
 }
