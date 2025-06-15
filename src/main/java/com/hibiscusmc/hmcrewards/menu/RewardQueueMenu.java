@@ -9,6 +9,7 @@ import com.hibiscusmc.hmcrewards.reward.RewardProvider;
 import com.hibiscusmc.hmcrewards.reward.RewardProviderRegistry;
 import com.hibiscusmc.hmcrewards.user.User;
 import com.hibiscusmc.hmcrewards.user.UserManager;
+import com.hibiscusmc.hmcrewards.user.UserManagerImpl;
 import com.hibiscusmc.hmcrewards.user.data.UserDatastore;
 import com.hibiscusmc.hmcrewards.util.GlobalMiniMessage;
 import com.hibiscusmc.hmcrewards.util.OptionalPlaceholderAPI;
@@ -61,22 +62,32 @@ public final class RewardQueueMenu {
     private boolean updateRewardIcons(final @NotNull Player player, final @Nullable String queueOwnerName, final @NotNull Gui gui, final int requestedPage, final boolean update) {
         final User user;
         if (queueOwnerName == null) {
-            // Then it's the player's own queue
-            user = userManager.getCached(player);
+            // ใช้ getRealtimeData สำหรับ reward queue เพื่อให้แน่ใจว่าได้ข้อมูลล่าสุด
+            if (userManager instanceof UserManagerImpl) {
+                user = ((UserManagerImpl) userManager).getRealtimeData(player.getUniqueId());
+            } else {
+                user = userDatastore.findByUuid(player.getUniqueId());
+            }
+
             if (user == null) {
                 translationManager.send(player, "user.self_not_found");
                 return false;
             }
         } else {
-            // Then it's another player's queue
+            // สำหรับผู้เล่นคนอื่น
             final var owner = Bukkit.getPlayerExact(queueOwnerName);
             if (owner != null) {
-                // Player is online
-                user = userManager.getCached(owner);
+                // อ่านข้อมูลล่าสุดจาก database
+                if (userManager instanceof UserManagerImpl) {
+                    user = ((UserManagerImpl) userManager).getRealtimeData(owner.getUniqueId());
+                } else {
+                    user = userDatastore.findByUuid(owner.getUniqueId());
+                }
             } else {
                 // Player is offline
                 user = userDatastore.findByUsername(queueOwnerName);
             }
+
             if (user == null) {
                 translationManager.send(player, "user.not_found", Placeholder.unparsed("arg", queueOwnerName));
                 return false;

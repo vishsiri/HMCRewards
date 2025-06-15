@@ -7,7 +7,7 @@ plugins {
 repositories {
     mavenLocal()
     maven("https://libraries.minecraft.net/") // datafixerupper
-    maven("https://papermc.io/repo/repository/maven-public/") // paper-api, paperlib
+    maven("https://repo.papermc.io/repository/maven-public/") // paper-api, paperlib
     maven("https://repo.oraxen.com/releases") // Oraxen
     maven("https://repo.unnamed.team/repository/unnamed-public/") // command-flow
     maven("https://repo.hibiscusmc.com/releases/") // HibiscusCommons
@@ -68,7 +68,11 @@ tasks {
         }
     }
     compileJava {
-        options.release = 17
+        options.release = 21
+        options.encoding = "UTF-8"
+    }
+    compileTestJava {
+        options.encoding = "UTF-8"
     }
     shadowJar {
         val pkg = "com.hibiscusmc.hmcrewards.lib"
@@ -80,4 +84,7 @@ tasks {
         relocate("xyz.jpenilla.reflectionremapper", "$pkg.reflectionremapper")
         relocate("net.kyori.adventure.nbt", "$pkg.adventure.nbt")
     }
+}
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }

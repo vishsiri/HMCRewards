@@ -1,10 +1,31 @@
 data:
-  store: 'json' # json, mongodb
+  # json, mongodb
+  store: "mongodb"
 
-  # only fill if store=mongodb
-  mongodb: # mongodb connection
-    uri: 'mongodb://localhost:27017'
-    database: 'hmcrewards'
+  # Smart caching mode (แนะนำสำหรับ 2000 คน)
+  smart-caching: true
+
+  # Cache จะ refresh ทุก 30 วินาที
+  cache-refresh-seconds: 30
+
+  # Cache จะถูกลบออกถ้าไม่ได้ใช้เกิน 10 นาที
+  cache-ttl-minutes: 10
+
+  # บันทึกอัตโนมัติเมื่อมีการอัพเดท (ปิดเพื่อลด database load)
+  auto-save-on-update: false
+
+  mongodb:
+    uri: "mongodb://localhost:27017"
+    database: "hmcrewards"
+
+# การตั้งค่า MongoDB Connection Pool
+mongodb:
+  connection-pool:
+    max-pool-size: 50          # เพียงพอสำหรับ 2000 คน
+    min-pool-size: 5           # รักษา connection พื้นฐาน
+    max-wait-time-ms: 10000    # รอ connection สูงสุด 10 วินาที
+    max-connection-idle-time-ms: 300000  # 5 นาที
+    max-connection-life-time-ms: 1800000 # 30 นาที
 
 toasts:
   enabled: true
@@ -26,7 +47,7 @@ rewards:
     type: "command"
 
     # Required Inventory Slots for claiming
-    required-space: 3
+    required-space: dynamic
 
     # icon
     display:
@@ -42,6 +63,30 @@ rewards:
     # Commands to deliver to player
     commands:
       - 'say %player% claimed a command reward from HMCRewards!'
-      - 'minecraft:give %player% minecraft:diamond 1'
+      - 'minecraft:give %player% minecraft:diamond'
       - 'minecraft:give %player% minecraft:enchanted_golden_apple 1'
       - 'minecraft:give %player% minecraft:emerald 1'
+
+
+
+  example_dynamic_reward:
+    type: dynamic
+    display:
+      material: 'CHEST'
+      custom-model-data: 1
+      name: '<green>Dynamic Reward Example'
+      lore:
+        - 'A dynamic reward!'
+        - 'Configured with arguments!'
+    arguments:
+      arg_1:
+        value: 64        # Default value for arg_1
+        stackable: true
+        stack-size: 64   # Max stack size
+      arg_2:
+        value: 32        # Default value for arg_2
+        stackable: false # Cannot stack in inventory
+    commands:
+      - 'say %player% received %arg_1% diamonds and %arg_2% netherite ingots!'
+      - 'minecraft:give %player% minecraft:diamond %arg_1%'
+      - 'minecraft:give %player% minecraft:netherite_ingot %arg_2%'

@@ -55,6 +55,7 @@ public final class PlayerJoinQuitListener implements Listener {
             if (!user.rewards().isEmpty()) {
                 translationManager.send(player, "notification.unclaimed_rewards",
                         Placeholder.component("amount", Component.text(user.rewards().size())));
+//                player.sendMessage("คุณมีของที่ยังไม่ได้รับใน mailbox" + Component.text(user.rewards().size()));
             }
         });
     }

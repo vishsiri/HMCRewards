@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-@Command(names = { "hmcrewards", "rewards" }, permission = "hmcrewards.command.hmcrewards")
+@Command(names = { "hmcrewards", "rewards", "mailbox" }, permission = "hmcrewards.command.hmcrewards")
 public final class HMCRewardsCommand implements CommandClass {
     @Inject private Plugin plugin;
     @Inject private UserManager userManager;

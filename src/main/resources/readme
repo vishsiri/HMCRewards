@@ -1,0 +1,130 @@
+
+To use the Dynamic Reward system with the HMCRewardsCommand, you need to define rewards in your configuration, use a RewardProvider that supports dynamic rewards, and execute the appropriate command to queue or give rewards dynamically.
+
+Here’s a step-by-step guide:
+
+1. Define a Dynamic Reward in config.yml
+Define the reward in the configuration file with all necessary attributes. Use arguments to define dynamic placeholders.
+
+yaml
+Copy code
+rewards:
+  example_dynamic_reward:
+    type: dynamic
+    display:
+      material: 'CHEST'
+      custom-model-data: 1
+      name: '<green>Dynamic Reward Example'
+      lore:
+        - 'A dynamic reward!'
+        - 'Configured with arguments!'
+    arguments:
+      arg_1:
+        value: 64        # Default value for arg_1
+        stackable: true
+        stack-size: 64   # Max stack size
+      arg_2:
+        value: 32        # Default value for arg_2
+        stackable: false # Cannot stack in inventory
+    commands:
+      - 'say %player% received %arg_1% diamonds and %arg_2% netherite ingots!'
+      - 'minecraft:give %player% minecraft:diamond %arg_1%'
+      - 'minecraft:give %player% minecraft:netherite_ingot %arg_2%'
+2. Command Syntax
+Use the hmcrewards queue command to queue or give a dynamic reward to a player.
+
+Command Syntax
+plaintext
+Copy code
+/hmcrewards queue <target> <provider> <reward_name> [dynamic_args]
+<target>: The player’s name, @a for all players, or @e for all entities.
+<provider>: The RewardProvider for dynamic rewards (e.g., dynamic).
+<reward_name>: The reward reference in the config (e.g., example_dynamic_reward).
+[dynamic_args]: Optional arguments to override defaults.
+Examples
+Queue with Default Values:
+
+plaintext
+Copy code
+/hmcrewards queue PlayerName dynamic example_dynamic_reward
+Uses default values:
+arg_1 = 64
+arg_2 = 32
+Result:
+
+Executes commands:
+plaintext
+Copy code
+say PlayerName received 64 diamonds and 32 netherite ingots!
+minecraft:give PlayerName minecraft:diamond 64
+minecraft:give PlayerName minecraft:netherite_ingot 32
+Override Default Values:
+
+plaintext
+Copy code
+/hmcrewards queue PlayerName dynamic example_dynamic_reward -arg_1:128 -arg_2:16
+Overrides:
+arg_1 = 128
+arg_2 = 16
+Result:
+
+Executes commands:
+plaintext
+Copy code
+say PlayerName received 128 diamonds and 16 netherite ingots!
+minecraft:give PlayerName minecraft:diamond 128
+minecraft:give PlayerName minecraft:netherite_ingot 16
+Force-Give Immediately:
+
+plaintext
+Copy code
+/hmcrewards queue -f PlayerName dynamic example_dynamic_reward
+Tries to give the reward immediately. If some items cannot be given due to inventory space, queues the rest.
+3. Argument Parsing
+The DynamicRewardProvider handles dynamic arguments using a format like -arg_name:value.
+
+Argument Format: -arg_name:value[:stack_type]
+arg_name: The argument name (e.g., arg_1).
+value: The value to use for the argument.
+stack_type (Optional): stack or non-stack.
+Example with Stack Type:
+plaintext
+Copy code
+/hmcrewards queue PlayerName dynamic example_dynamic_reward -arg_1:200:stack -arg_2:10:non-stack
+arg_1 = 200 (stackable)
+arg_2 = 10 (non-stackable)
+Inventory Slot Calculation:
+
+arg_1: Requires 4 slots (200 items, max stack size = 64).
+arg_2: Requires 10 slots (non-stackable).
+4. Reward Execution Flow
+Command Handler:
+
+The queue method in HMCRewardsCommand fetches the reward using the RewardProvider.
+It parses dynamic arguments from the command.
+Dynamic Argument Resolution:
+
+Placeholders like %arg_1% and %arg_2% in the reward's commands are replaced with the provided values.
+Inventory Slot Validation:
+
+The DynamicRewardProvider checks if the player has enough inventory space.
+If not, the reward is queued instead of given immediately.
+Command Execution:
+
+The commands in the reward are executed with placeholders replaced by resolved values.
+5. Common Use Cases
+Reward with Multiple Players:
+plaintext
+Copy code
+/hmcrewards queue @a dynamic example_dynamic_reward
+Queues the reward for all online players.
+Offline Player Reward:
+plaintext
+Copy code
+/hmcrewards queue VisherRyz dynamic example_dynamic_reward
+Queues the reward for an offline player VisherRyz.
+Test the Reward:
+plaintext
+Copy code
+/hmcrewards queue YourName dynamic example_dynamic_reward -arg_1:50 -arg_2:5
+Tests the reward with custom arguments.
